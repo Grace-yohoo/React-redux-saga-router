@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<script>
+    // // 观察者模式
+    //
+    // class Observer {
+    //     constructor(name) {
+    //         this.name = name;
+    //     }
+    //
+    //     update = (name, byName) => {
+    //         // 执行更新逻辑
+    //         console.log(`${this.name} 知道了 ${name} 关注了 ${byName}`)
+    //     }
+    // }
+    //
+    // class LiuYiFei {
+    //     constructor() {
+    //         this.handles = [];
+    //
+    //         this.name = '';
+    //         this.myname = '刘亦菲';
+    //     }
+    //
+    //     registerObserver = (observer) => {
+    //         this.handles.push(observer)
+    //     };
+    //
+    //     follw = (name) => {
+    //         // 关注逻辑
+    //         this.name = name;
+    //         this.action();
+    //     };
+    //
+    //     action = () => {
+    //         this.handles.forEach((item) => {
+    //             item.update(this.name, this.myname);
+    //         })
+    //     };
+    // }
+    //
+    //
+    // let l = new LiuYiFei();
+    //
+    // let o1 = new Observer('observer_1');
+    // let o2 = new Observer('observer_2');
+    //
+    // l.registerObserver(o1);
+    // l.registerObserver(o2);
+    //
+    // l.follw('吴彦祖');
+
+    // class DOM {
+    //
+    //     constructor() {
+    //         this.handles = new Map();
+    //     }
+    //
+    //     on = (event, callback) => {
+    //         let handles = this.handles;
+    //
+    //         if (typeof callback !== 'function') throw new Error(`${callback} 这不是一个函数`);
+    //
+    //         if (handles.has(event)) {
+    //             throw new Error(`我已经有这个事件了, 不要重复绑定${event}事件`);
+    //         } else {
+    //             handles.set(event, callback);
+    //         }
+    //     };
+    //
+    //     emit = (event) => {
+    //         let handles = this.handles;
+    //
+    //         if (! handles.has(event)) throw new Error(`你这个${event}事件还没注册呢`);
+    //         handles.get(event)();
+    //     };
+    // }
+    //
+    // let dom = new DOM();
+    //
+    // dom.on('click', function () {
+    //     console.log('执行了点击事件')
+    // });
+    //
+    // dom.emit('click');
+
+
+    class DOM {
+        constructor() {
+            this.handles = new Map();
+        }
+
+        on = (event, callback) => {
+            let handles = this.handles;
+
+            if (typeof callback !== 'function') throw new Error(`${callback} 这不是一个函数`);
+
+            if (handles.has(event)) {
+                handles.get(event).push(callback);
+            } else {
+                // 没有event
+                handles.set(event, [callback])
+            }
+
+            return this;
+        };
+
+        emit = (event) => {
+            let handles = this.handles;
+
+            if (! handles.has(event)) throw new Error(`你这个${event}事件还没注册呢`);
+
+            handles.get(event).forEach(item => {
+                item();
+            });
+        };
+    }
+
+    let dom = new DOM();
+
+    dom.on('click', function () {
+        console.log('执行了点击事件')
+    }).on('change', function () {
+        console.log('执行了change事件')
+    }).on('click', function () {
+        console.log('执行了点击事件')
+    });
+
+    dom.emit('click');
+    dom.emit('change');
+
+
+</script>
+
+</body>
+</html>

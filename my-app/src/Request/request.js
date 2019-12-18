@@ -1,5 +1,4 @@
 
-
 const request = {
 
     //查询
@@ -27,7 +26,9 @@ const request = {
             })
 
           })
-          .then(this.mysqlquery(datafun))
+          .then((res) => {
+            this.mysqlquery(datafun);
+          })
 
     },
 
@@ -53,10 +54,9 @@ const request = {
         })
       })
       .then(res => res.json())
-      // .then(res => console.log(Update))
       .then(resdata => datafun(resdata))
     },
-
+   //重置
     mysqlreset(datafun){
       fetch('http://localhost:8080', {
         method: 'GET', 
@@ -67,7 +67,7 @@ const request = {
       })
       .then(this.mysqlquery(datafun))
      },
-
+   //修改
    mysqlchange(row,datafun){
     fetch('http://localhost:8080/change', {
       method: 'POST', 

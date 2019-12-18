@@ -6,7 +6,6 @@ import request from '../../Request/request';
 export default class HomeStore {
 
     @observable data = null;
-    @observable dataSearch = null;
     @observable editingKey= '';
     @observable visible= false;
     @observable searchText = '';
@@ -25,20 +24,26 @@ export default class HomeStore {
 
     //获取数据 转为一维数组
     @action.bound changeData(result){
-
+      
         for (let k in result){
           result[k].key = result[k].createdAt
         }
-        this.data = result
-        
-        this.dataSearch= result
+        this.data = result     
 
     }
     
+    @action.bound change(result){
+            
+      for (let k in result){
+        result[k].key = result[k].createdAt
+      }
+      this.data = result
+
+    }
 
     @action handleDelete = key => {
         this.loading=true;
-        request.mysqldelete(key,this.changeData)
+        request.mysqldelete(key,this.change)
         setTimeout(() => {
           runInAction(()=>{
             this.loading=false;  
@@ -63,13 +68,14 @@ export default class HomeStore {
             });
             this.loading=true;
             row.key = key
-            request.mysqlchange(row,this.changeData)
+
             this.editingKey='' 
             setTimeout(() => {
+              request.mysqlchange(row,this.change)
               runInAction(()=>{
                 this.loading=false;  
               }) 
-            }, 500);
+            }, 1000);
             
 
           } else {
@@ -119,10 +125,10 @@ export default class HomeStore {
             return;
         }    
         this.loading = true
-        request.mysqladd(values,this.changeData)
         form.resetFields();
         this.visible= false 
         setTimeout(() => {
+          request.mysqladd(values,this.change)
           runInAction(()=>{
             this.loading=false;  
           }) 
@@ -138,7 +144,7 @@ export default class HomeStore {
        //还原筛选前的数据
     @action.bound handleReset(){
       this.loading=true; 
-      request.mysqlreset(this.changeData)
+      request.mysqlreset(this.change)
 
         setTimeout(() => {
           runInAction(()=>{
@@ -150,7 +156,7 @@ export default class HomeStore {
 
     @action.bound handleSearch(values){
         console.log(values);
-            request.mysqlsearch(values,this.changeData)
+            request.mysqlsearch(values,this.change)
 
         this.loading=true;
         // this.data=arr6

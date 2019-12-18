@@ -38,12 +38,6 @@ const User = sequelize.define('react_table', {
   } 
 );
 
-const dataq = (res) => {
-    User.findAll().then(users => {
-    str = JSON.stringify(users)
-    res.send(str)
-  })
-}
 
 
 
@@ -58,57 +52,70 @@ app.all('*', function(req, res, next) {
 
 //注册路由（这里只能监听get方法和根    res.send(str)目录）
 app.get('/', function (req, res) {
-    dataq(res)
+    new Promise((resolve,reject)=> {
+      let data =  User.findAll({
+  
+      });
+      resolve(data)
+    })
+    .then(data =>(res.send(JSON.stringify(data))))
 })
 
+//初始渲染数据
 app.post('/', function (req, res) {
     console.log("POST");
-    dataq(res)
+    new Promise((resolve,reject)=> {
+      let data =  User.findAll({
+  
+      });
+      resolve(data)
+    })
+    .then(data =>(res.send(JSON.stringify(data))))
+    
 })
 
 //增加
 app.post('/add', function(req, res){
-   //获取数据
-    let reqdata = req.body;
-    //获取key部分
-    str = Object.keys(reqdata)
-    //转换为对象
-    da= JSON.parse(str)
-    //传入插数据方法
-    insert(da,res)
-})
-
-
-
-//mysql增加数据
-const insert = (da,res) => {
-    try{
-      User.create({
+  new Promise((resolve,reject) => {
+       //获取数据
+       let reqdata = req.body;
+       //获取key部分
+       str = Object.keys(reqdata)
+       //转换为对象
+       da= JSON.parse(str)
+       let data =  User.create({
         name : da.name,
         desc : da.desc,
         source : da.source,
         url : da.url
-      });
+       });
+       resolve(data)
+  })
+  .then(res.send(JSON.stringify(data)))
+    
+})
 
-  }
-  catch{
-    res.end(JSON.stringify(false)) 
-  }
-}
 
 //删除
-app.post('/delete', (req)=> {
+app.post('/delete', (req,res)=> {
   //获取数据
-   let id = req.body;
-   str = Object.keys(id)
-   //转换为对象
-   da= JSON.parse(str)
-   User.destroy({
-    where:{
-      createdAt: da
-    }
+  new Promise((resolve,reject) => {
+    let id = req.body;
+    str = Object.keys(id)
+    //转换为对象
+    da= JSON.parse(str)
+
+    let data = User.destroy({
+          where:{
+            createdAt: da
+          }
+     })  
+    resolve(data)    
   })
+  .then((data)=> res.send(JSON.stringify(data)))
+
 })
+
 
 //搜索
 app.post('/search',(req,res) =>{
@@ -127,36 +134,42 @@ app.post('/search',(req,res) =>{
       res.send(str)
 
     });
-
 })
 
 //重置
-app.post('/reset',(res) => {
-    dataq(res) 
+app.post('/reset',(req,res) => {
+  new Promise((resolve,reject)=> {
+    let data =  User.findAll({
+
+    });
+    resolve(data)
+  })
+  .then(data =>(res.send(JSON.stringify(data))))
 })
 
 //修改
-app.post('/change',(res)=>{
-  let str = res.body
-  da1 = Object.keys(str)
-  da= JSON.parse(da1)
-  console.log(da)
-  User.update({
-    name: da.name,
-    desc: da.desc,
-    url: da.url,
-    source: da.source,
-  },{
-    where:{
-      createdAt: da.key
-    }
-  }).then(updata=>{
-    str = JSON.stringify(updata)
-    res.send(str)
-  });
+app.post('/change',(req,res)=>{
+  new Promise((resolve,reject) => {
+    let str = req.body
+    da1 = Object.keys(str)
+    da= JSON.parse(da1)
+    console.log(da)
 
+   let data =  User.update({
+      name: da.name,
+      desc: da.desc,
+      source: da.source,
+    },{
+      where:{
+        createdAt: da.key,
+      }
+    });
+    resolve(data)
+  })
+  .then((data) => res.send(JSON.stringify(data)))
 
 })
+
 
 app.listen(8080,function(){
     console.log('http://localhost:8080');

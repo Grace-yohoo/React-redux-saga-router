@@ -1,0 +1,38 @@
+flux	
+
+mobx
+
+redux
+
+dispatch  分发
+action    动作
+reducers  逻辑
+store     数据仓库
+view	  视图
+
+mvc
+controller
+model 
+view
+
+
+
+// redux流程
+
+分发任务dispatch
+
+具体任务 action  属性type 区分动作
+
+reducer   返回新的状态
+
+创建store
+
+
+将添加 改成redux方式
+
+
+消除硬编码
+高内聚 低耦合
+
+
+

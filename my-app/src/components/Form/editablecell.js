@@ -67,7 +67,7 @@ class EditableTable extends React.Component {
     this.columns = [
       {
         title: 'Name',
-        dataIndex: 'who',
+        dataIndex: 'name',
         editable: true,
       },
       {
@@ -78,13 +78,8 @@ class EditableTable extends React.Component {
         ellipsis: true,
       },
       {
-        title: 'Type',
-        dataIndex: 'type',
-      },
-      {
         title:'Link',
         dataIndex:'url',
-        editable: true,
         render: text => <a href={text} target="_blank">链接</a>,
       },
       {
@@ -150,14 +145,17 @@ class EditableTable extends React.Component {
 
 
 
+
   componentDidMount(){
   const {store} = this.props;
-  console.log(store)
   const {home:{changeData}} = store;
-  fetch('http://gank.io/api/today')
+
+
+  fetch('http://localhost:8080/')
     .then(result => result.json())
     .then(result => changeData(result))
     .catch(e => this.setState({ error: e }))
+
   }
   
 
@@ -198,7 +196,6 @@ class EditableTable extends React.Component {
         }),
       };
     });
-    console.log(loading)
     return (
         <div>
           {data

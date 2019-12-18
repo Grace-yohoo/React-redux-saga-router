@@ -148,5 +148,8 @@
       ],
       "babel-plugin-transform-class-properties"
     ]
-  }
+  },
+  	
+  "proxy": "http://open.douyucdn.cn"
+  	
 }

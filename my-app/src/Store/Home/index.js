@@ -1,4 +1,6 @@
 import {observable, action,  computed, runInAction} from "mobx";
+import request from '../../Request/request';
+// global.fetch = require('node-fetch');
 
 
 export default class HomeStore {
@@ -10,6 +12,7 @@ export default class HomeStore {
     @observable searchText = '';
     @observable searchvalue =""
     @observable loading = false;
+    @observable mysqldata = null;
 
     @computed get aaa(){
         return this.age * this.price
@@ -22,45 +25,20 @@ export default class HomeStore {
 
     //获取数据 转为一维数组
     @action.bound changeData(result){
-        console.log(this);
-        console.log(result)
-        let arr = []
-        let data2 = []
-        const data1 = result.results
-        console.log(data1)
-      
-  
-        for(let k in data1){
-            arr.push(data1[k])
-        }
-        let arr2 = [].concat.apply([], arr);
-        console.log(arr2)
-      
-        for (let i = 0; i < arr2.length; i++) {
-            data2.push({
-                publishedAt:arr2[i].publishedAt,
-                type:arr2[i].type,
-                url:arr2[i].url,	
-                who:arr2[i].who,
-                key: arr2[i]._id,
-                createdAt:arr2[i].createdAt,
-                desc:arr2[i].desc,
-                source:arr2[i].source,
-  
-  
-                used:true,
-            });
-        }
-            this.data = data2
 
-            this.dataSearch= data2
+        for (let k in result){
+          result[k].key = result[k].createdAt
+        }
+        this.data = result
+        
+        this.dataSearch= result
 
     }
+    
 
     @action handleDelete = key => {
         this.loading=true;
-        const data= [...this.data];
-        this.data =  data.filter(item => item.key !== key) 
+        request.mysqldelete(key,this.changeData)
         setTimeout(() => {
           runInAction(()=>{
             this.loading=false;  
@@ -84,7 +62,8 @@ export default class HomeStore {
               ...row,
             });
             this.loading=true;
-            this.data=newData
+            row.key = key
+            request.mysqlchange(row,this.changeData)
             this.editingKey='' 
             setTimeout(() => {
               runInAction(()=>{
@@ -95,6 +74,7 @@ export default class HomeStore {
 
           } else {
             newData.push(row);
+            console.log(row)
             this.data = newData
             this.editingKey = '' 
           }
@@ -137,33 +117,17 @@ export default class HomeStore {
         form.validateFields((err, values) => {
           if (err) {
             return;
-          }
-          let time = new Date();
-          let time2 = (new Date().valueOf())
-          function formatDate(now) { 
-            var year=now.getFullYear(); 
-            var month=now.getMonth()+1; 
-            var date=now.getDate(); 
-            var hour=now.getHours(); 
-            var minute=now.getMinutes(); 
-            var second=now.getSeconds(); 
-            return year+"-"+month+"-"+date+" "+hour+":"+minute+":"+second; 
-         } 
-          var d =(formatDate(time))
-          values.key = time2
-          values.createdAt = d
-          console.log('Received values of form: ', values);
-          data.push(values)
-          this.loading=true;
-          this.data=data
-          form.resetFields();
-          this.visible= false 
-          setTimeout(() => {
-            runInAction(()=>{
-              this.loading=false;  
-            }) 
-          }, 500);
-        });
+        }    
+        this.loading = true
+        request.mysqladd(values,this.changeData)
+        form.resetFields();
+        this.visible= false 
+        setTimeout(() => {
+          runInAction(()=>{
+            this.loading=false;  
+          }) 
+        }, 500);
+      });
       };
 
     @action.bound  onSearch(value){
@@ -174,8 +138,8 @@ export default class HomeStore {
        //还原筛选前的数据
     @action.bound handleReset(){
       this.loading=true; 
-        const dataSearch = this.dataSearch
-        this.data=dataSearch
+      request.mysqlreset(this.changeData)
+
         setTimeout(() => {
           runInAction(()=>{
             this.loading=false;  
@@ -186,24 +150,10 @@ export default class HomeStore {
 
     @action.bound handleSearch(values){
         console.log(values);
-        let arr6 = []
-        const data = this.data
-        for (let k in data){
-        if (data[k].who.search(values)>=0){
-            arr6.push({
-            createdAt: data[k].createdAt,
-            desc: data[k].desc,
-            key: data[k].key,
-            publishedAt: data[k].publishedAt,
-            source: data[k].source,
-            type: data[k].type,
-            url: data[k].url,
-            who: data[k].who,
-            })
-        }
-        }
+            request.mysqlsearch(values,this.changeData)
+
         this.loading=true;
-        this.data=arr6
+        // this.data=arr6
         setTimeout(() => {
           runInAction(()=>{
             this.loading=false;  
@@ -225,4 +175,5 @@ export default class HomeStore {
        this.handleReset()
         this.searchvalue=""
       }
+
 }

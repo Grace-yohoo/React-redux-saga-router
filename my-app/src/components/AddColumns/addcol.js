@@ -18,18 +18,13 @@ const CollectionCreateForm = Form.create({ name: 'form_in_modal' })(
           >
             <Form layout="vertical">
               <Form.Item label="Name">
-                {getFieldDecorator('who', {
+                {getFieldDecorator('name', {
                   rules: [{ required: true, message: 'Please input the who of collection!' }],
                 })(<Input />)}
               </Form.Item>
               <Form.Item label="Description">
                 {getFieldDecorator('desc', {
                   rules: [{ required: true, message: 'Please input the desc of collection!' }],
-                })(<Input type="textarea" />)}
-              </Form.Item>
-              <Form.Item label="Type">
-                {getFieldDecorator('type', {
-                  initialValue: 'Android',
                 })(<Input type="textarea" />)}
               </Form.Item>
               <Form.Item label="Link">

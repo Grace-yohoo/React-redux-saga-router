@@ -91,7 +91,7 @@ app.post('/add', function(req, res){
        });
        resolve(data)
   })
-  .then(res.send(JSON.stringify(data)))
+  .then(data => res.send(JSON.stringify(data)))
     
 })
 

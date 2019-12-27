@@ -1,4 +1,4 @@
-import {FETCH, DELETE,CREATE,SEARCH,RESET,SAVE} from '../ActionTypes/tablelist'
+import {FETCH, DELETE,CREATE,SEARCH,SAVE} from '../ActionTypes/tablelist'
 
 
 const initialState = {

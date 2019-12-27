@@ -3,61 +3,14 @@ import React, {Component} from 'react';
 import { Table, Input, InputNumber, Popconfirm, Form, Spin, Button } from 'antd';
 import 'antd/dist/antd.css';
 import Myinput from '../Input/Input'
+import addbutton from './addbutton'
 import {connect} from 'react-redux';
+import Edit from './EditableCell'
 import {
   Route,
   Switch,
 } from 'react-router-dom';
 
-
-const EditableContext = React.createContext();
-
-//修改类
-class EditableCell extends React.Component {
-    getInput = () => {
-      if (this.props.inputType === 'number') {
-        return <InputNumber />;
-      }
-      return <Input />;
-    };
-  
-    renderCell = ({ getFieldDecorator }) => {
-      const {
-        editing,
-        dataIndex,
-        title,
-        inputType,
-        record,
-        index,
-        children,
-        ...restProps
-      } = this.props;
-      return (
-        <td {...restProps}>
-          {editing ? (
-            <Form.Item style={{ margin: 0 }}>
-              {getFieldDecorator(dataIndex, {
-                rules: [
-                  {
-                    required: true,
-                    message: `Please Input ${title}!`,
-                  },
-                ],
-                initialValue: record[dataIndex],
-              })(this.getInput())}
-            </Form.Item>
-          ) : (
-            children
-          )}
-        </td>
-      );
-    };
-  
-    render() {
-
-      return <EditableContext.Consumer>{this.renderCell}</EditableContext.Consumer>;
-    }
-}
 
 //映射状态
 const mapStateToProps = (state) => {
@@ -116,7 +69,7 @@ class EditableTable extends React.Component {
           const editable = this.isEditing(record);
           return editable ? (
             <span>
-              <EditableContext.Consumer>
+              <Edit.EditableContext.Consumer>
                 {form => (
                   <a
                     onClick={() => this.save(form, record.key)}
@@ -125,7 +78,7 @@ class EditableTable extends React.Component {
                     保存
                   </a>
                 )}
-              </EditableContext.Consumer>
+              </Edit.EditableContext.Consumer>
               <Popconfirm title="确定要取消吗?" onConfirm={() => this.cancel(record.key)}>
                 <a>取消</a>
               </Popconfirm>
@@ -147,17 +100,7 @@ class EditableTable extends React.Component {
             </Popconfirm>
           ) : null,
       },
-    ];
-
-    this.handleDelete = this.handleDelete.bind(this);
-    this.showModal = this.showModal.bind(this);
-    this.handleCancel = this.handleCancel.bind(this);
-    this.handleCreate = this.handleCreate.bind(this);
-    this.saveFormRef = this.saveFormRef.bind(this);
-    this.handSearch = this.handSearch.bind(this);
-    this.handReset = this.handReset.bind(this);
-
-
+    ]
 
   }
   
@@ -166,13 +109,12 @@ class EditableTable extends React.Component {
   
   //删除
   handleDelete = key => {
-     console.log(key)
      this.setState({loading:true})
-     this.props.dispatch({type:'del',key})
+     this.props.dispatch({type:'del',data:key,data2 :'delete'})
      setTimeout(()=> {
       this.setState({loading:false})
 
-     },300)
+     },500)
 
   };
 
@@ -182,7 +124,7 @@ class EditableTable extends React.Component {
   };
   
   //修改方法
-  save(form, key) {
+  save = (form, key) =>{
     form.validateFields((error, row) => {
       if (error) {
         return ;
@@ -200,7 +142,7 @@ class EditableTable extends React.Component {
         this.setState({ loading: true }) 
         this.setState({ editingKey: '' }) 
         setTimeout(() => {
-            this.props.dispatch({type:'sav',row})  
+            this.props.dispatch({type:'sav',data:row,data2:'change'})  
             this.setState({ loading: false }) 
         }, 1000);
         
@@ -216,32 +158,23 @@ class EditableTable extends React.Component {
   }
 
   //编辑
-  edit(key) {
+  edit = (key) => {
     this.setState({ editingKey: key });
   }
 
-  //添加方法
+  //取消
   handleCancel = () => {
     this.setState({ visible: false });
   };
 
   //新增
-  handleCreate = () => {
-    const { form } = this.formRef.props;
-    const {tablelistReducer:{data}} = this.props
+  handleCreate = (values) => {
+
     this.setState({loading:true})
    
-    form.validateFields((err, values) => {
-      this.setState({visible: false });
-      if (err) {
-        this.setState({visible: true });
-        return ;
-      }
-      form.resetFields();
 
-      this.props.dispatch({type:'add',values})
+    this.props.dispatch({type:'add',data:values,data2:'add'})
      
-    });
     setTimeout(()=> {
       this.setState({loading:false})
      },300)
@@ -258,16 +191,16 @@ class EditableTable extends React.Component {
   };
 
   //搜索方法
-  handSearch(value){
+  handSearch = (value) =>{
     this.setState({loading:true})
-    this.props.dispatch({type:'sear',value})
+    this.props.dispatch({type:'sear',data:value,data2:'search'})
     setTimeout(()=> {
       this.setState({loading:false})
      },300)
   }
 
   //重置方法
-  handReset(){
+  handReset = ()=>{
     this.setState({loading:true})
     this.props.dispatch({type:'feh'}) 
     setTimeout(()=> {
@@ -276,14 +209,15 @@ class EditableTable extends React.Component {
   }
 
   //生命周期  加载后
-  componentDidMount(){
+  componentDidMount= () =>{
     this.props.dispatch({type:'feh'})
+    
   }
 
   render() {
     const components = {
       body: {
-        cell: EditableCell,
+        cell: Edit.EditableCell,
       },
     };
     const {tablelistReducer:{data}} = this.props;
@@ -311,9 +245,9 @@ class EditableTable extends React.Component {
 
               <Myinput handSearch={this.handSearch} handReset={this.handReset}></Myinput>
               <Switch>
-                  <Route exact path="/" component = {addbutton}/>           
+                  <Route exact path="/" component = {addbutton}/>                           
               </Switch>
-              <EditableContext.Provider value={this.props.form}>
+              <Edit.EditableContext.Provider value={this.props.form}>
                             <Table
                               components={components}
                               bordered
@@ -326,7 +260,7 @@ class EditableTable extends React.Component {
                               }}
                               rowKey={(data)=>data.key}
                             />
-              </EditableContext.Provider>                          
+              </Edit.EditableContext.Provider>                          
                 
             </div>
           : <Spin style={{marginLeft:'900px',marginTop:'200px'}} tip="加载中..." size='large'/>
@@ -337,31 +271,12 @@ class EditableTable extends React.Component {
       
     );
   }
-}
-      
-const addbutton =function(props){
-    //点击事件,跳转至Myinfo页面
-    const aclick = ()=>{
-      props.history.replace('/myinfo')
-    }
+}      
 
-  return(
-    <div>
-      <Button onClick = {aclick} style={{background:'#1890ff',color:'#fff',marginTop:"30px",marginBottom:"10px"}}>创建</Button>
-    </div>
-  )
 
-}
 
 const EditableFormTable = Form.create()(EditableTable);
 
-//导出Mytable
-class Mytable extends Component{ 
-    render(){
-        return <EditableFormTable />
-    }
-}
 
 
-
-export default Mytable;
+export default EditableFormTable;

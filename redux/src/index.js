@@ -6,12 +6,15 @@ import store from './store';
 import {
     Provider
 } from 'react-redux';
+import {HashRouter as Router} from "react-router-dom";
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
 
     <Provider store={store}>
+        <Router>
              <App />
+        </Router>
    </Provider>   
 
 , document.getElementById('root'));

@@ -2,7 +2,7 @@
 import React,{Component,useState} from 'react';
 import './App.css';
 import Mytable from './Components/Table/index';
-import MyInfo from './Pages/addtable'
+import CollectionsPage from './Pages/addinfo'
 import {
   Route,
   Switch,
@@ -13,8 +13,8 @@ class App extends Component{
     return(
       <div className="App">
         <Switch>
-          <Route exact path='/' component = {Mytable} /> 
-          <Route exact path="/myinfo" component={MyInfo} />          
+          <Route exact path='/' component = {Mytable} />   
+          <Route exact path="/myinfo" component={CollectionsPage} />          
        </Switch> 
       </div>
     );

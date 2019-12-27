@@ -28,7 +28,7 @@ const CollectionCreateForm = Form.create({ name: 'form_in_modal' })(
                 {getFieldDecorator('desc',{initialValue:'hello'})(<Input type="textarea" />)}
               </Form.Item>
               <Form.Item label="网址">
-                {getFieldDecorator('url',{initialValue:'www.baidu.com'})(<Input type="textarea" />)}
+                {getFieldDecorator('url',{initialValue:'https://www.baidu.com/'})(<Input type="textarea" />)}
               </Form.Item>
               <Form.Item label="类型">
                 {getFieldDecorator('source',{initialValue:'web'})(<Input type="textarea" />)}

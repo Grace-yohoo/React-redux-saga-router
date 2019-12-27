@@ -14,5 +14,6 @@ const store = createStore(combineReducers(reduce),applyMiddleware(SagaMiddleware
 
 SagaMiddleware.run(Mysaga)
 
+
 console.log(store.getState())
 export default store;

@@ -12,7 +12,8 @@ const Op = Sequelize.Op;
 const sequelize = new Sequelize('mysql', 'root', '123456', {
     host: "localhost",
     port: 3306,
-    dialect: 'mysql'
+    dialect: 'mysql',
+
 });
 
 //连接状态检查
@@ -25,6 +26,14 @@ sequelize
       console.error('Unable to connect to the database:', err);
     });
 
+sequelize
+    .sync()
+    .then(() => {
+      console.log('init db ok')
+    })
+    .catch(err => {
+      console.log('init db error', err)
+    })
 
 //创建表的结构
 const User = sequelize.define('react_table', {
@@ -40,7 +49,7 @@ const User = sequelize.define('react_table', {
 
 
 
-
+//Header
 app.all('*', function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
@@ -95,45 +104,46 @@ app.post('/add', function(req, res){
     
 })
 
-
 //删除
 app.post('/delete', (req,res)=> {
   //获取数据
-  new Promise((resolve,reject) => {
     let id = req.body;
     str = Object.keys(id)
     //转换为对象
     da= JSON.parse(str)
 
-    let data = User.destroy({
+     User.destroy({
           where:{
-            createdAt: da
+            id: da
           }
-     })  
-    resolve(data)    
-  })
-  .then((data)=> res.send(JSON.stringify(data)))
+    })  
+   res.send({
+     code:0,
+     msg:'删除成功'
+   })
 
 })
 
-
 //搜索
 app.post('/search',(req,res) =>{
-  let name = req.body;
-  str = Object.keys(name)
-  //转换为对象
-  da= JSON.parse(str)
-  User.findAll({
-      where:{
-        name: {
-          [Op.like]: `%${da}%`
+  new Promise((resolve,reject)=> {
+    let name = req.body;
+    str = Object.keys(name)
+    //转换为对象
+    da= JSON.parse(str)
+    let data = User.findAll({
+        where:{
+          // name: {
+          //   [Op.like]: `%${da}%`
+          // },  
+          [Op.or]: [{ name: { [Op.like]: `%${da}%` } }, //like和or连用
+                    { source: { [Op.like]: `%${da}%` } },
+                ],
         }
-      }
-    }).then(updata=>{
-      str = JSON.stringify(updata)
-      res.send(str)
-
-    });
+      })
+    resolve(data)
+  })
+  .then(data => res.send(JSON.stringify(data)))
 })
 
 //重置
@@ -161,7 +171,7 @@ app.post('/change',(req,res)=>{
       source: da.source,
     },{
       where:{
-        createdAt: da.key,
+        id: da.key,
       }
     });
     resolve(data)
@@ -170,7 +180,7 @@ app.post('/change',(req,res)=>{
 
 })
 
-
+//监听端口
 app.listen(8080,function(){
     console.log('http://localhost:8080');
 })
